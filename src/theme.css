@@ -1,0 +1,804 @@
+:root {
+  /* Superficies: blanco apenas frío, para que no deslumbre en el cañón */
+  --fondo: #f6f8fb;
+  --fondo-2: #edf1f6;
+  --linea: #dde3ec;
+  --linea-2: #c3cad5;
+
+  /* Texto */
+  --tinta: #0e1b30;
+  --tinta-2: #46546b;
+  --tinta-3: #77839a;
+
+  /* Color con significado fijo:
+     azul = trabajo que avanza en paralelo · naranja = dependencia, espera, camino crítico · gris = ocioso */
+  --azul: #1f5fd1;
+  --azul-2: #5b8ae0;
+  --azul-claro: #d9e5fa;
+  --naranja: #e5730b;
+  --naranja-texto: #b85a06;
+  --naranja-claro: #fbe3cc;
+  --ocioso: #c3cad5;
+  --ocioso-claro: #e6eaf0;
+
+  --sans: "IBM Plex Sans", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  /* Tamaños mínimos para proyectar: lectura ≥ 26, rótulos ≥ 20, nada < 18 (mismos números en lib/tipo.ts) */
+  --fs-lectura: 26px;
+  --fs-rotulo: 20px;
+  --fs-ayuda: 18px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  background: #e3e8ef;
+  color: var(--tinta);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+body.idle {
+  cursor: none;
+}
+
+/* ---------- Escenario 16:9 ---------- */
+
+.deck {
+  position: fixed;
+  inset: 0;
+}
+
+.viewport {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #e3e8ef;
+}
+
+.stage {
+  position: absolute;
+  width: 1920px;
+  height: 1080px;
+  left: 50%;
+  top: 50%;
+  transform-origin: 0 0;
+  background: var(--fondo);
+  overflow: hidden;
+}
+
+/* Orillas para avanzar o regresar con el dedo o el mouse: apenas una sombra al pasar el cursor */
+.orilla {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 18%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.orilla.izq {
+  left: 0;
+  background: linear-gradient(90deg, rgba(14, 27, 48, 0.05), transparent);
+}
+
+.orilla.der {
+  right: 0;
+  background: linear-gradient(270deg, rgba(14, 27, 48, 0.05), transparent);
+}
+
+body:not(.idle) .orilla.on {
+  opacity: 1;
+}
+
+/* ---------- Marco de diapositiva ---------- */
+
+.slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 64px 112px 84px;
+}
+
+.slide-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--mono);
+  font-size: var(--fs-rotulo);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tinta-3);
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--linea);
+}
+
+.slide-head .section {
+  font-size: 22px;
+}
+
+.slide-head .section b {
+  color: var(--tinta);
+  font-weight: 500;
+}
+
+.slide-head .section .tema {
+  color: var(--azul);
+  font-weight: 500;
+}
+
+.slide-head .num {
+  font-variant-numeric: tabular-nums;
+}
+
+.slide-head .num em {
+  font-style: normal;
+  color: var(--azul);
+}
+
+.slide-title {
+  margin: 40px 0 0;
+  font-size: 60px;
+  line-height: 1.05;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  max-width: 1600px;
+}
+
+.slide-lede {
+  margin: 16px 0 0;
+  font-size: 28px;
+  line-height: 1.4;
+  color: var(--tinta-2);
+  max-width: 1400px;
+}
+
+.slide-body {
+  flex: 1;
+  min-height: 0;
+  margin-top: 36px;
+  position: relative;
+}
+
+/* ---------- Piezas ---------- */
+
+.label {
+  font-family: var(--mono);
+  font-size: var(--fs-rotulo);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tinta-3);
+}
+
+.mono {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.azul {
+  color: var(--azul);
+}
+
+.naranja {
+  color: var(--naranja-texto);
+}
+
+.tenue {
+  color: var(--tinta-3);
+}
+
+/* Conclusión al pie de una diapositiva: una sola línea fuerte */
+.remate {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  font-size: 32px;
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  padding-top: 20px;
+  border-top: 1px solid var(--linea);
+}
+
+.remate .tenue {
+  font-weight: 400;
+  font-size: 26px;
+}
+
+/* Código en línea dentro de la diapositiva */
+code,
+.code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+}
+
+svg text {
+  font-family: var(--sans);
+}
+
+svg .m {
+  font-family: var(--mono);
+}
+
+.katex {
+  font-size: 1.08em;
+}
+
+/* ---------- Deck ---------- */
+
+.progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background: var(--linea);
+}
+
+.progress > div {
+  height: 100%;
+  background: var(--azul);
+  transition: width 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.help {
+  position: absolute;
+  left: 112px;
+  bottom: 28px;
+  font-family: var(--mono);
+  font-size: var(--fs-ayuda);
+  letter-spacing: 0.06em;
+  color: var(--tinta-3);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+body:not(.idle) .help {
+  opacity: 1;
+}
+
+.pausa {
+  position: absolute;
+  right: 112px;
+  bottom: 28px;
+  font-family: var(--mono);
+  font-size: var(--fs-ayuda);
+  letter-spacing: 0.06em;
+  color: var(--naranja-texto);
+}
+
+/* Notas para quien expone (N): panel abajo, sobre la diapositiva */
+.notas {
+  position: absolute;
+  left: 112px;
+  right: 112px;
+  bottom: 60px;
+  max-height: 560px;
+  overflow: auto;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid var(--linea-2);
+  box-shadow: 0 18px 48px rgba(14, 27, 48, 0.16);
+  padding: 26px 36px 28px;
+  user-select: text;
+}
+
+.notas .label {
+  color: var(--azul);
+}
+
+.notas ul {
+  margin: 12px 0 0;
+  padding-left: 1.1em;
+}
+
+.notas li {
+  font-size: 25px;
+  line-height: 1.42;
+  margin: 6px 0;
+}
+
+.notas li::marker {
+  color: var(--tinta-3);
+}
+
+/* ---------- 01 Portada ---------- */
+
+.slide.portada {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 120px;
+  padding: 96px 140px;
+}
+
+.portada-tema {
+  margin-top: 56px;
+  font-family: var(--mono);
+  font-size: 30px;
+  color: var(--azul);
+  letter-spacing: 0.06em;
+}
+
+.portada h1 {
+  margin: 14px 0 0;
+  font-size: 86px;
+  line-height: 1.02;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.portada p {
+  margin: 30px 0 0;
+  font-size: 34px;
+  line-height: 1.35;
+  color: var(--tinta-2);
+  max-width: 900px;
+}
+
+.portada-equipo {
+  margin-top: 76px;
+  padding-top: 22px;
+  border-top: 1px solid var(--linea);
+  max-width: 760px;
+}
+
+.portada-equipo table {
+  margin-top: 12px;
+  border-collapse: collapse;
+}
+
+.portada-equipo td {
+  font-size: 27px;
+  padding: 5px 0;
+}
+
+.portada-equipo td.mono {
+  padding-left: 56px;
+  color: var(--tinta-2);
+}
+
+.leyenda {
+  display: flex;
+  gap: 40px;
+  margin-top: 30px;
+  font-size: 22px;
+  color: var(--tinta-2);
+}
+
+.leyenda i {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
+  vertical-align: -2px;
+}
+
+/* ---------- Piezas de las diapositivas ---------- */
+
+.codigo-grande {
+  font-family: var(--mono);
+  font-size: 30px;
+  font-weight: 500;
+  color: var(--tinta);
+}
+
+.dos-paneles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+}
+
+.dos-paneles > * + * {
+  position: relative;
+}
+
+.dos-paneles > * + *::before {
+  content: "";
+  position: absolute;
+  left: -40px;
+  top: 0;
+  bottom: 0;
+  border-left: 1px solid var(--linea);
+}
+
+.panel-carriles .codigo-grande {
+  margin: 8px 0 26px;
+}
+
+.estado {
+  margin-top: 6px;
+  font-size: 27px;
+}
+
+.tres-columnas {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+}
+
+.tres-columnas > * {
+  padding-right: 48px;
+}
+
+.tres-columnas > * + * {
+  padding-left: 0;
+}
+
+/* 03 Espectro */
+.eje-espectro {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 26px;
+  padding-top: 12px;
+  border-top: 2px solid var(--tinta-3);
+  font-family: var(--mono);
+  font-size: 20px;
+  letter-spacing: 0.06em;
+}
+
+.ejemplos {
+  list-style: none;
+  margin: 26px 0 0;
+  padding: 0;
+}
+
+.ejemplos li {
+  font-size: 27px;
+  line-height: 1.3;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--linea);
+}
+
+/* 04 Dependencias */
+.tres-columnas.dep > * + * {
+  border-left: 1px solid var(--linea);
+  padding-left: 44px;
+}
+
+.dep-tipo {
+  font-family: var(--mono);
+  font-size: 52px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.dep-nombre {
+  font-size: 22px;
+  color: var(--tinta-2);
+  margin-top: 2px;
+}
+
+.dep-cond {
+  margin-top: 22px;
+  font-size: 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: color 0.3s;
+}
+
+.dep-cond .explica {
+  font-size: 22px;
+  color: var(--tinta-2);
+}
+
+.dep-cond.rota,
+.dep-cond.rota .katex {
+  color: var(--naranja-texto);
+}
+
+.dep-codigo {
+  position: relative;
+  height: 150px;
+  margin-top: 24px;
+  background: var(--fondo-2);
+  padding: 8px 20px;
+}
+
+.dep-linea {
+  position: absolute;
+  left: 20px;
+  top: 8px;
+  font-family: var(--mono);
+  font-size: 36px;
+  line-height: 64px;
+  white-space: nowrap;
+}
+
+.dep-s {
+  display: inline-block;
+  width: 38px;
+  font-size: 20px;
+  color: var(--tinta-3);
+}
+
+.var {
+  font-weight: 600;
+}
+
+.var-nueva {
+  font-weight: 600;
+  color: var(--azul);
+}
+
+.dep-resultado {
+  margin-top: 20px;
+  font-size: 28px;
+  line-height: 1.35;
+  min-height: 72px;
+}
+
+/* 05 Ciclos */
+.ciclos {
+  position: relative;
+}
+
+.ciclos-svg {
+  display: block;
+}
+
+.fila-codigo {
+  position: absolute;
+  left: 0;
+  width: 580px;
+  font-size: 24px;
+  line-height: 1.3;
+}
+
+.fila-codigo .codigo-grande {
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.ciclos-nota {
+  margin: 22px 0 0;
+  font-size: 24px;
+  line-height: 1.4;
+  color: var(--tinta-2);
+  max-width: 540px;
+}
+
+/* 06 Grafo */
+.contadores {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  justify-content: space-between;
+  margin-top: 22px;
+}
+
+.contadores > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.contadores b {
+  font-size: 38px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.contadores > div > span {
+  font-size: 22px;
+  color: var(--tinta-2);
+}
+
+/* 07 Tres cargas */
+.tres-columnas.cargas {
+  margin-top: 28px;
+}
+
+.tres-columnas.cargas > * + * {
+  border-left: 1px solid var(--linea);
+  padding-left: 44px;
+}
+
+.cargas h2 {
+  margin: 0;
+  font-size: 38px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.cargas .que {
+  margin: 8px 0 18px;
+  font-size: 24px;
+  line-height: 1.35;
+  color: var(--tinta-2);
+  min-height: 66px;
+}
+
+.fila-carga {
+  padding: 12px 0;
+  border-top: 1px solid var(--linea);
+}
+
+.fila-carga .label.azul {
+  color: var(--azul);
+}
+
+.fila-carga .label.naranja {
+  color: var(--naranja-texto);
+}
+
+.fila-carga p {
+  margin: 4px 0 0;
+  font-size: 27px;
+  line-height: 1.3;
+}
+
+/* 08 Preprocesamiento */
+.gantt-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 26px;
+  margin-bottom: 12px;
+}
+
+.gantt-head code {
+  margin-left: 14px;
+  font-size: 22px;
+}
+
+.gantt-cuentas {
+  display: flex;
+  gap: 40px;
+  font-size: 22px;
+  color: var(--tinta-2);
+}
+
+.gantt-cuentas b {
+  font-size: 30px;
+  margin-left: 8px;
+  color: var(--tinta);
+}
+
+.gantt-cuentas b.azul {
+  color: var(--azul);
+}
+
+/* 09 Dentro del paso */
+.dos-paneles.paso {
+  grid-template-columns: 900px 1fr;
+}
+
+.modo-mat {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 14px;
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.modo-mat .mono {
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.nota-mat {
+  margin: 14px 0 0;
+  font-size: 24px;
+  line-height: 1.4;
+  color: var(--tinta-2);
+}
+
+.nota-mat b {
+  color: var(--tinta);
+  font-weight: 500;
+}
+
+/* 11 Inferencia */
+.dos-paneles.inferencia {
+  grid-template-columns: 790px 1fr;
+}
+
+/* 12 Cierre */
+.sintesis {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 4px;
+}
+
+.sintesis th,
+.sintesis td {
+  text-align: left;
+  vertical-align: top;
+  padding: 16px 28px 16px 0;
+  border-bottom: 1px solid var(--linea);
+  font-size: 27px;
+  line-height: 1.3;
+}
+
+.sintesis thead th {
+  padding-top: 0;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--tinta-3);
+  font-weight: 500;
+}
+
+.sintesis thead th.azul {
+  color: var(--azul);
+}
+
+.sintesis thead th.naranja {
+  color: var(--naranja-texto);
+}
+
+.sintesis tbody th {
+  font-weight: 600;
+  width: 290px;
+}
+
+.sintesis td.azul {
+  color: var(--azul);
+}
+
+.sintesis td.naranja {
+  color: var(--naranja-texto);
+}
+
+.sigue {
+  margin-top: 40px;
+}
+
+.sigue ol {
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  margin: 14px 0 0;
+  padding: 18px 0 0;
+  border-top: 2px solid var(--linea-2);
+}
+
+.sigue li {
+  position: relative;
+  font-size: 25px;
+  color: var(--tinta-2);
+  transition: color 0.3s;
+}
+
+.sigue li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -27px;
+  width: 14px;
+  height: 14px;
+  background: var(--linea-2);
+  transition: background 0.3s;
+}
+
+.sigue li .mono {
+  display: block;
+  font-size: 22px;
+  color: var(--tinta-3);
+  margin-bottom: 2px;
+}
+
+.sigue li.activo {
+  color: var(--tinta);
+}
+
+.sigue li.activo::before {
+  background: var(--azul);
+}
+
+.sigue li.activo .mono {
+  color: var(--azul);
+}

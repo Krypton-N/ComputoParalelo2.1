@@ -1,0 +1,45 @@
+# ── Dependencias y build ──────────────────────────
+node_modules/
+dist/
+dist-ssr/
+*.tsbuildinfo
+.vite/
+
+# ── Documentación (no se sube) ────────────────────
+docs/
+*.md
+!README.md
+
+# ── Agentes de IA / asistentes ────────────────────
+.agents/
+.agent/
+.gemini/
+.antigravity/
+.claude/
+.cursor/
+.cursorrules
+.windsurf/
+.windsurfrules
+.codeium/
+.continue/
+.aider*
+.copilot/
+.remember/
+AGENTS.md
+GEMINI.md
+CLAUDE.md
+.github/copilot-instructions.md
+
+# ── Logs y entorno ────────────────────────────────
+*.log
+npm-debug.log*
+.env
+.env.*
+!.env.example
+
+# ── Editor / SO ───────────────────────────────────
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
